@@ -1,0 +1,9 @@
+Client ID,Company Name,Contact Person,Email,Phone,Month,Amount Due,Payment Status
+C001,Alpha Corp,John Smith,john@alphacorp.com,123-456-7890,July,$1200.00,Paid
+C002,Beta Solutions,Sarah Lee,sarah@betasolutions.com,987-654-3210,July,$980.00,Not Paid
+C003,Gamma Enterprises,Mike Jordan,mike@gammaenterprises.com,555-667-7788,July,$1450.00,Paid
+C004,Delta Group,Emma Watson,emma@deltagroup.com,444-555-6666,July,$720.00,Not Paid
+C005,Epsilon Systems,Raj Patel,raj@epsilonsystems.com,321-654-0987,July,$1100.00,Paid
+C006,Zeta Dynamics,Aisha Khan,aisha@zetadynamics.com,234-876-4321,July,$850.00,Not Paid
+C007,Omega Logistics,David Kim,david@omegalogistics.com,765-123-4567,July,$1300.00,Paid
+C008,Theta Corp,Maria Garcia,maria@thetacorp.com,678-345-9870,July,$900.00,Not Paid
