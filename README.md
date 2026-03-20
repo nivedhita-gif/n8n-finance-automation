@@ -1,5 +1,5 @@
 # n8n-finance-automation
-End to end business workflow automation using n8n integrating Google Sheets, Docs, Drive, Gmail to automate payroll generation, invoice processing, and payment reminders
+This project automates key finance operations for a business using n8n, an open-source workflow automation tool. It covers three workflows : monthly payroll distribution, overdue payment reminders, and sales invoice generation, all built on top of Google Workspace.
 
 
 ## Workflows Overview
