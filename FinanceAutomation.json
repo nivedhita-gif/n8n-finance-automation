@@ -1,0 +1,886 @@
+{
+  "name": "PS1 project",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1faf0e53-1c1b-4c88-89b9-22051fef383d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_EMPLOYEE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Employee details",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a343d831-b47f-4efa-a0cf-633ded07cfe3",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_PAYSLIP_TEMPLATE_ID",
+          "mode": "list",
+          "cachedResultName": "Payslip",
+          "cachedResultUrl": ""
+        },
+        "name": "=Salary Slip {{ $json['Employee Name'] }}{{ $json['Pay Period'] }}",
+        "sameFolder": false,
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "YOUR_PAYSLIP_FOLDER_ID",
+          "mode": "list",
+          "cachedResultName": "salaryslip",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "843a81b4-2515-49f5-a571-3516744fe939",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{Pay Period}",
+              "replaceText": "={{ $('Get row(s) in sheet').item.json['Pay Period'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Employee Name}",
+              "replaceText": "={{ $('Get row(s) in sheet').item.json['Employee Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Designation}",
+              "replaceText": "={{ $('Get row(s) in sheet').item.json.Designation }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Basic Pay}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Basic Pay'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Incentive Pay}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Incentive Pay'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={House Rent Allowance}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['House Rent Allowance'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Meal Allowance}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Meal Allowance'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Provident Fund}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Provident Fund'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Professional Tax}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Professional Tax'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Loan}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json.Loan }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Total Earnings}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Total Earnings'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Total Deductions}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Total Deductions'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={Net Pay}",
+              "replaceText": "=${{ $('Get row(s) in sheet').item.json['Net Pay'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b7254313-7154-426e-8a7a-d09fdbe165b3",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YOUR_GOOGLE_DOCS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DOCS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "ca84ab49-b3ff-4bc7-ad5b-7a6de54fbbc3",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@gmail.com",
+        "subject": "=Salary Slip  {{ $('Get row(s) in sheet').item.json['Employee Name'] }} {{ $('Get row(s) in sheet').item.json['Pay Period'] }}",
+        "emailType": "text",
+        "message": "=Dear {{ $('Get row(s) in sheet').item.json['Employee Name'] }} \n\nPlease find attatched salary slip for the month {{ $('Get row(s) in sheet').item.json['Pay Period'] }}\n\nRegards \nHR Team",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "25eea19f-0dff-4587-89b8-6dc2ace7534f",
+      "name": "Send a message",
+      "webhookId": "d6707ac0-04b3-43d7-8cc9-59e3d7ebd1a7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "YOUR_GMAIL_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        320
+      ],
+      "id": "adbdec5b-230f-49b4-a114-0d2e2fff0400",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_OVERDUE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Overdue Payments",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        288,
+        320
+      ],
+      "id": "a2062174-a848-4b1e-826c-f5b89e4148ec",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0bedf7d-908a-44d1-be44-34fc060501fa",
+              "leftValue": "={{$json[\"Payment Status\"]}}",
+              "rightValue": "Not Paid",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        320
+      ],
+      "id": "41f01763-4f4d-4e3b-bd4c-80497a46c4f1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@gmail.com",
+        "subject": "Overdue Payment",
+        "emailType": "text",
+        "message": "=Dear {{$json[\"Company Name\"]}},  This is a reminder that your payment of {{ $json['Amount Due'] }}for this month is still pending. Kindly complete the payment by the due date.\nThank you",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        224
+      ],
+      "id": "2023b118-dd22-4425-badd-e757d81445bc",
+      "name": "Send a message1",
+      "webhookId": "9cb1c748-1f7d-41f7-b19d-8fcb65498b46",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "YOUR_GMAIL_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_ORDERS_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Orders",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        640,
+        640
+      ],
+      "id": "eeaf940c-5858-4b48-a9d6-c41513a5c3aa",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_PRODUCTS_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Gulf Products",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        640,
+        464
+      ],
+      "id": "fb42f515-7795-4b6a-9227-f8adb1ac65fe",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        176,
+        560
+      ],
+      "id": "3111ae64-afcb-4839-af2b-9529e515a8b4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7fe086a9-a8a8-4d2d-a448-f5814046044f",
+              "name": "Company Name",
+              "value": "={{ $('Get row(s) in sheet2').item.json['Company Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d50496ab-4b0f-4779-9568-12ecbc898149",
+              "name": "Product Name",
+              "value": "={{ $('Get row(s) in sheet2').item.json['Product Purchased'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2096a03a-49d1-4291-82ee-efd1e4379b26",
+              "name": "Quantity(Liters)",
+              "value": "={{ $('Get row(s) in sheet2').item.json['Quantity (Liters)'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2096f03f-7935-4738-9f10-2c4a86cb38f1",
+              "name": "Unit Price",
+              "value": "={{ $node[\"Get row(s) in sheet3\"].json[\"Estimated Price (AED)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "b56aada3-374c-4515-82a3-d1255be0d114",
+              "name": "Total",
+              "value": "={{ $node[\"Get row(s) in sheet3\"].json[\"Estimated Price (AED)\"] * $node[\"Get row(s) in sheet2\"].json[\"Quantity (Liters)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "c7536cad-ac29-4df7-8e98-9c6a2d8fedc3",
+              "name": "VAT",
+              "value": "={{ ($node[\"Get row(s) in sheet3\"].json[\"Estimated Price (AED)\"] * $node[\"Get row(s) in sheet2\"].json[\"Quantity (Liters)\"]) * 5 / 100 }}\n",
+              "type": "string"
+            },
+            {
+              "id": "6106abc4-1452-4f73-8ba4-219801eb3e5a",
+              "name": "Total Amount Due",
+              "value": "={{ ($node[\"Get row(s) in sheet3\"].json[\"Estimated Price (AED)\"] * $node[\"Get row(s) in sheet2\"].json[\"Quantity (Liters)\"]) * 105 / 100 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1792,
+        464
+      ],
+      "id": "8419e72d-9b3e-4a65-8fe1-279aea5b8a3d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_INVOICE_TEMPLATE_ID",
+          "mode": "list",
+          "cachedResultName": "Sales Invoice",
+          "cachedResultUrl": ""
+        },
+        "name": "={{ $json['Company Name'] }} Sales Invoice",
+        "sameFolder": false,
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": ""
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "YOUR_INVOICE_FOLDER_ID",
+          "mode": "list",
+          "cachedResultName": "customerinvoice",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2208,
+        464
+      ],
+      "id": "46632fc9-bf44-47f0-aa93-f9eddb7d2c9c",
+      "name": "Copy file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{Client ID}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json['Client ID'] )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Company Name}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json['Company Name'] )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Phone}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json['Phone No']) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Email}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json.Email) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Product Purchased}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json['Product Purchased']) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Quantity (Liters)}",
+              "replaceText": "={{String( $('Get row(s) in sheet2').item.json['Quantity (Liters)'] )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Estimated Price (AED)}",
+              "replaceText": "={{String($('Get row(s) in sheet3').item.json['Estimated Price (AED)'] )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Total}",
+              "replaceText": "={{String( $('Edit Fields').item.json.Total) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "={VAT}",
+              "replaceText": "={{ String($('Edit Fields').item.json.VAT )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Total Amount Due}",
+              "replaceText": "={{String( $('Edit Fields').item.json['Total Amount Due'] )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Date}",
+              "replaceText": "={{ $('Get row(s) in sheet2').item.json['Date(DD/MM/YYYY)'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Due Date}",
+              "replaceText": "={{\n  (() => {\n    const parts = $('Get row(s) in sheet2').item.json[\"Date(DD/MM/YYYY)\"].split('/');\n    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);\n    d.setDate(d.getDate() + 30);\n    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;\n  })()\n}}\n"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2416,
+        464
+      ],
+      "id": "49a0e459-a500-4bb8-85c4-7218fbb920bb",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YOUR_GOOGLE_DOCS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DOCS_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Product Name",
+              "field2": "Product Purchased"
+            }
+          ]
+        },
+        "outputDataFrom": "input2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        560
+      ],
+      "id": "9eeaaee6-68ba-422c-961b-819bdd4d6499",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2624,
+        464
+      ],
+      "id": "a1864b51-c34a-4c8b-beb8-e50119a83660",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@gmail.com",
+        "subject": "={{ $('Edit Fields').item.json['Company Name'] }} Sales Invoice ",
+        "emailType": "text",
+        "message": "=Dear {{ $('Copy file1').item.json.name }}\nThank you for your recent purchase from Gulf Oil.\nPlease find attached the invoice for your order placed on {{ $('Merge').item.json['Date(DD/MM/YYYY)'] }}.\nIf you have any questions regarding this invoice or require additional documentation, feel free to reply to this email or contact our support team.\n\nWe appreciate your business and look forward to serving you again.\n\nBest regards,\nAccounts Receivable\nGulf Oil\n📞 +971 4 123 4567\n✉️ sales@gulfoilme.com\n🌐 https://me.gulfoilltd.com/en",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2832,
+        464
+      ],
+      "id": "f129c52f-78b4-4022-b3a0-aa020dc19285",
+      "name": "Send a message2",
+      "webhookId": "2608ff7c-91eb-457f-a61c-adfcb2a7e88e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "YOUR_GMAIL_ACCOUNT"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Copy file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file1": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
